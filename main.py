@@ -1,15 +1,33 @@
 # Veasna Ling
 # COMP 257 Advance Algorithms
 
-class Brute_Coin_Game:
+class BruteCoinGame:
+    def brute_coin_game(self, coin_list, i, j):
+        if i == j:
+            return coin_list[i]
+        if i + 1 == j:
+            return max(coin_list[i], coin_list[j])
 
+        choose_left = coin_list[i] + min(self.brute_coin_game(coin_list, i + 2, j),
+                                         self.brute_coin_game(coin_list, i + 1, j - 1))
+        choose_right = coin_list[j] + min(self.brute_coin_game(coin_list, i + 1, j - 1),
+                                          self.brute_coin_game(coin_list, i, j - 2))
+
+        return max(choose_left, choose_right)
+
+
+class GreedyCoinGame:
     def __init__(self, coin_arr, n):
         self.coin_arr = coin_arr
         self.n = n
         self.dp_list = [[0] * n for _ in range(n)]
 
-    def dp_function(self):
-        # print(self.dp_list)
+    def create_dp_array(self):
+        if self.n == 1:
+            return self.dp_list[0]
+        if self.n == 2:
+            return max(self.dp_list[0], self.dp_list[1])
+
         for k in range(self.n):
             for i in range(self.n - k):
                 j = i + k
@@ -19,73 +37,47 @@ class Brute_Coin_Game:
                     self.dp_list[i][j] = max(self.coin_arr[i], self.coin_arr[j])
                 else:
                     choose_left = self.coin_arr[i] + min(self.dp_list[i + 2][j], self.dp_list[i + 1][j - 1])
-                    choose_right = self.coin_arr[j] + min(self.dp_list[i + 1][j-1], self.dp_list[i][j - 2])
+                    choose_right = self.coin_arr[j] + min(self.dp_list[i + 1][j - 1], self.dp_list[i][j - 2])
                     self.dp_list[i][j] = max(choose_left, choose_right)
 
-        for cur_list in self.dp_list:
-            print(cur_list)
-
     def choose_coin(self, i, j):
-        self.dp_function()
         left_val = self.coin_arr[i] + min(self.dp_list[i + 1][j - 1], self.dp_list[i + 2][j])
         right_val = self.coin_arr[j] + min(self.dp_list[i + 1][j - 1], self.dp_list[i][j - 2])
-        print(f"choose ? left_val: {left_val}, right_val: {right_val}")
         if left_val >= right_val:
             return 0
         else:
             return 1
 
-    def brute_coin_game(self):
-        print(self.coin_arr)
-
-        # option for first pick from player 1
-        print(f"current player 1 choice")
-        list_solution = [{"lc": 1, "rc": n - 1, "val": self.coin_arr[0]},
-                         {"lc": 0, "rc": n - 2, "val": self.coin_arr[n - 1]}]
-        print(list_solution)
-
-        for i in range(1, self.n):
+    def greed_function(self):
+        player_one_sum = 0
+        left_coin = 0
+        right_coin = 0
+        self.create_dp_array()
+        for i in range(self.n):
             if i % 2 == 0:
-                print(f"current player 1 turn")
-            else:
-                print(f"current player 2 turn")
-            curr_sol = []
-            for item_sol in list_solution:
-                print(f"current item in solution {item_sol}")
-                if i % 2 == 0:
-                    left_sol = {"lc": item_sol["lc"] + 1,
-                                "rc": item_sol["rc"],
-                                "val": item_sol["val"] + self.coin_arr[item_sol["lc"]]}
-                    curr_sol.append(left_sol)
-
-                    right_sol = {"lc": item_sol["lc"],
-                                 "rc": item_sol["rc"] - 1,
-                                 "val": item_sol["val"] + self.coin_arr[item_sol["rc"]]}
-                    curr_sol.append(right_sol)
-
-                    print(curr_sol)
+                if self.coin_arr[left_coin] > self.coin_arr[right_coin]:
+                    player_one_sum += self.coin_arr[left_coin]
+                    left_coin += 1
                 else:
-                    choose = self.choose_coin(item_sol["lc"], item_sol["rc"])
-                    if choose == 0:
-                        curr_sol = {"lc": item_sol["lc"] + 1,
-                                    "rc": item_sol["rc"],
-                                    "val": item_sol["val"]}
-                    else:
-                        curr_sol = {"lc": item_sol["lc"],
-                                    "rc": item_sol["rc"] - 1,
-                                    "val": item_sol["val"]}
-                    print(curr_sol)
-
-        return
+                    player_one_sum += self.coin_arr[right_coin]
+                    right_coin -= 1
+            else:
+                choose = self.choose_coin(left_coin, right_coin)
+                if choose == 0:
+                    left_coin += 1
+                else:
+                    right_coin -= 1
+        return player_one_sum
 
 
-class DP:
-    def __init__(self):
-        print("Start DP function")
-
+class DPCoinGame:
     def dp_function(self, n, list):
         dp_list = [[0] * n for _ in range(n)]
-        # print(dp_list)
+        if n == 1:
+            return list[0]
+        if n == 2:
+            return max(list[0], list[1])
+
         for gap in range(n):
             for i in range(n - gap):
                 j = i + gap
@@ -98,8 +90,7 @@ class DP:
                     choose_right = list[j] + min(dp_list[i + 1][j - 1], dp_list[i][j - 2])
                     dp_list[i][j] = max(choose_left, choose_right)
 
-        for list in dp_list:
-            print(list)
+        return dp_list[0][n - 1]
 
 
 if __name__ == "__main__":
@@ -107,8 +98,11 @@ if __name__ == "__main__":
     coinList = [20, 30, 2, 2, 2, 10]
     print(coinList)
     n = len(coinList)
-    # brute = Brute_Coin_Game(coinList, n)
-    # brute.brute_coin_game()
+    brute = BruteCoinGame()
+    print(f"max {brute.brute_coin_game(coinList, 0, n - 1)}")
 
-    dp = DP()
-    dp.dp_function(n, coinList)
+    greedy = GreedyCoinGame(coinList, n)
+    print(f"max {greedy.greed_function()}")
+
+    dp = DPCoinGame()
+    print(f"max {dp.dp_function(n, coinList)}")
