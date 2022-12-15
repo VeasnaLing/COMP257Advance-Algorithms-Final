@@ -51,7 +51,7 @@ class GreedyCoinGame:
     def greed_function(self):
         player_one_sum = 0
         left_coin = 0
-        right_coin = 0
+        right_coin = self.n - 1
         self.create_dp_array()
         for i in range(self.n):
             if i % 2 == 0:
@@ -71,31 +71,30 @@ class GreedyCoinGame:
 
 
 class DPCoinGame:
-    def dp_function(self, n, list):
+    def dp_function(self, coin_arr, n):
         dp_list = [[0] * n for _ in range(n)]
         if n == 1:
-            return list[0]
+            return coin_arr[0]
         if n == 2:
-            return max(list[0], list[1])
+            return max(coin_arr[0], coin_arr[1])
 
         for gap in range(n):
             for i in range(n - gap):
                 j = i + gap
                 if i == j:
-                    dp_list[i][j] = list[i]
+                    dp_list[i][j] = coin_arr[i]
                 elif j - i == 1:
-                    dp_list[i][j] = max(list[i], list[j])
+                    dp_list[i][j] = max(coin_arr[i], coin_arr[j])
                 else:
-                    choose_left = list[i] + min(dp_list[i + 2][j], dp_list[i + 1][j - 1])
-                    choose_right = list[j] + min(dp_list[i + 1][j - 1], dp_list[i][j - 2])
+                    choose_left = coin_arr[i] + min(dp_list[i + 2][j], dp_list[i + 1][j - 1])
+                    choose_right = coin_arr[j] + min(dp_list[i + 1][j - 1], dp_list[i][j - 2])
                     dp_list[i][j] = max(choose_left, choose_right)
 
         return dp_list[0][n - 1]
 
 
 if __name__ == "__main__":
-    # coinList = [1, 5, 10, 25, 1, 5, 10, 25]
-    coinList = [20, 30, 2, 2, 2, 10]
+    coinList = [1, 5, 10, 25]
     print(coinList)
     n = len(coinList)
     brute = BruteCoinGame()
@@ -105,4 +104,4 @@ if __name__ == "__main__":
     print(f"max {greedy.greed_function()}")
 
     dp = DPCoinGame()
-    print(f"max {dp.dp_function(n, coinList)}")
+    print(f"max {dp.dp_function(coinList, n)}")
