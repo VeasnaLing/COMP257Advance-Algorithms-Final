@@ -2,12 +2,14 @@
 # COMP 257 Advance Algorithms
 
 class BruteCoinGame:
+    print("running brute function: ")
+
     def brute_coin_game(self, coin_list, i, j):
         if i == j:
             return coin_list[i]
         if i + 1 == j:
             return max(coin_list[i], coin_list[j])
-
+        
         choose_left = coin_list[i] + min(self.brute_coin_game(coin_list, i + 2, j),
                                          self.brute_coin_game(coin_list, i + 1, j - 1))
         choose_right = coin_list[j] + min(self.brute_coin_game(coin_list, i + 1, j - 1),
@@ -49,6 +51,7 @@ class GreedyCoinGame:
             return 1
 
     def greed_function(self):
+        print("running greedy function: ")
         player_one_sum = 0
         left_coin = 0
         right_coin = self.n - 1
@@ -72,6 +75,7 @@ class GreedyCoinGame:
 
 class DPCoinGame:
     def dp_function(self, coin_arr, n):
+        print("running DP function:")
         dp_list = [[0] * n for _ in range(n)]
         if n == 1:
             return coin_arr[0]
@@ -97,6 +101,7 @@ if __name__ == "__main__":
     coinList = [1, 5, 10, 25]
     print(coinList)
     n = len(coinList)
+
     brute = BruteCoinGame()
     print(f"max {brute.brute_coin_game(coinList, 0, n - 1)}")
 
